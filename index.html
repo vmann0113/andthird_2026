@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>앤써드웨딩 초대전 · 창원 프리미엄 웨딩</title>
+  <meta name="description" content="창원 앤써드웨딩 초대전 · 단 한 커플만을 위한 프라이빗 웨딩 상담. 스튜디오·웨딩홀·드레스·예물·한복·신혼여행을 한 자리에서. 무료 방문 신청.">
+  <meta property="og:title" content="앤써드웨딩 초대전 · 창원 프리미엄 웨딩">
+  <meta property="og:description" content="단 한 커플만을 위한 프라이빗 웨딩 상담 · 스드메 한 자리에">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Parisienne&display=swap" rel="stylesheet">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+  <link rel="stylesheet" href="css/b-styles.css">
+  <link rel="stylesheet" href="css/roulette.css">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     Roulette Popup (shared markup — do not rename ids)
+══════════════════════════════════════════════ -->
+<div id="roulette-overlay" role="dialog" aria-modal="true" aria-labelledby="roulette-title">
+  <canvas id="roulette-confetti" aria-hidden="true"></canvas>
+  <div class="roulette-modal">
+    <div class="roulette-badge" aria-hidden="true">
+      <span class="dot"></span>
+      <span class="txt">VISITORS&nbsp;ONLY · 방문객 1회 한정</span>
+    </div>
+    <button class="roulette-close" onclick="closeRoulette()" aria-label="닫기">✕</button>
+    <div class="roulette-title-block">
+      <span class="roulette-eyebrow">Today&apos;s Lucky Draw</span>
+      <h3 class="roulette-title" id="roulette-title">
+        Spin <em>&amp;</em> Win
+        <span class="kr">행운의 룰렛 · 100% 당첨</span>
+      </h3>
+    </div>
+    <div class="roulette-marquee" aria-hidden="true">
+      <div class="marquee-track" id="roulette-marquee-track"></div>
+    </div>
+    <div class="canvas-container" id="canvas-container" onclick="spinRoulette()">
+      <span class="roulette-rays" aria-hidden="true"></span>
+      <svg class="roulette-bulbs" viewBox="0 0 360 360" aria-hidden="true"></svg>
+      <span class="roulette-pointer" aria-hidden="true"></span>
+      <svg id="roulette-img" viewBox="0 0 320 320" aria-label="룰렛"></svg>
+      <span class="roulette-spark" aria-hidden="true"></span>
+    </div>
+    <button class="spin-button" id="spin-button" onclick="spinRoulette()">
+      <span class="spin-button-inner">
+        <span class="spin-button-label">지금 돌리기</span>
+        <span class="spin-button-sub">PRESS&nbsp;TO&nbsp;SPIN</span>
+      </span>
+    </button>
+    <p class="roulette-hint"><span>휠을 직접 눌러 돌릴 수도 있어요</span></p>
+    <div id="roulette-result"></div>
+  </div>
+</div>
+
+<!-- narrow event-page column -->
+<div class="bx-shell">
+
+  <!-- ═════════════ Header ═════════════ -->
+  <header class="bx-head" id="bx-head">
+    <div class="bx-head-inner">
+      <a href="#top" class="bx-brand">
+        <span class="bx-brand-en">AND THIRD</span>
+        <span class="bx-brand-kr">앤써드웨딩 초대전</span>
+      </a>
+      <a href="#apply" class="bx-btn bx-btn--rose bx-btn--sm">방문신청</a>
+    </div>
+    <div class="bx-countdown" id="bx-countdown">
+      <span class="bx-countdown-label" id="bx-countdown-label">이달의 무료 초대 이벤트</span>
+      <span class="bx-countdown-timer" id="bx-timer"></span>
+    </div>
+  </header>
+
+  <a id="top"></a>
+
+  <!-- ═════════════ Hero ═════════════ -->
+  <section class="bx-hero">
+    <div class="bx-hero-bg">
+      <img class="bx-hero-img" alt="">
+      <span class="bx-hero-veil" aria-hidden="true"></span>
+    </div>
+    <div class="bx-hero-inner">
+      <span class="bx-script bx-script--light">Wedding Invitation</span>
+      <p class="bx-hero-kicker">창원 프리미엄 웨딩</p>
+      <h1 class="bx-hero-title">앤써드웨딩<br><em>초대전</em></h1>
+      <p class="bx-hero-dates">연중 상시 운영 · 1커플 프라이빗 예약제</p>
+      <div class="bx-hero-actions">
+        <a href="#apply" class="bx-btn bx-btn--rose bx-btn--lg">무료 방문 신청하기</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ Apply (visit form — early, boram-style) ═════════════ -->
+  <section class="bx-apply" id="apply">
+    <div class="bx-sec-head">
+      <span class="bx-ribbon">VISIT 방문신청</span>
+      <span class="bx-script">Reservation</span>
+      <h2 class="bx-sec-title">초대전 방문 신청</h2>
+      <p class="bx-sec-sub">성함·연락처·방문 희망일만 남겨주시면 예약 확정을 안내해 드립니다.</p>
+    </div>
+
+    <div class="bx-apply-card">
+      <form id="applyForm" novalidate>
+        <div id="prize-wrap" class="bx-field" style="display:none">
+          <label for="wonPrizeField" class="bx-prize-label">당첨 혜택 · Your Gift</label>
+          <input type="text" id="wonPrizeField" name="prize" readonly placeholder="">
+        </div>
+
+        <div class="bx-field">
+          <label for="user-name">성함 <span class="req">*</span></label>
+          <input type="text" id="user-name" name="name" placeholder="신랑님 또는 신부님 성함" autocomplete="name">
+        </div>
+
+        <div class="bx-field">
+          <label for="user-phone">연락처 <span class="req">*</span></label>
+          <input type="tel" id="user-phone" name="phone" placeholder="010-1234-5678"
+                 maxlength="13" autocomplete="tel" oninput="autoHyphen(this)">
+        </div>
+
+        <div class="bx-field">
+          <label for="user-date">방문 희망일 <span class="req">*</span></label>
+          <input type="date" id="user-date" name="date" required>
+        </div>
+
+        <p id="form-error" class="bx-form-error"></p>
+
+        <button type="submit" class="bx-btn bx-btn--rose bx-btn--block btn-submit">
+          무료 방문 신청하기
+        </button>
+
+        <p class="bx-privacy">
+          입력하신 개인정보는 초대전 안내 목적으로만 사용되며, 상담 종료 후 즉시 파기됩니다.
+        </p>
+      </form>
+
+      <div id="completion-msg">
+        <div class="completion-mark">✦</div>
+        <h3 class="completion-title">방문 신청이 완료되었습니다</h3>
+        <p class="completion-desc">
+          소중한 신청 감사드립니다.<br>
+          예약하신 날짜에 현장에서 만나뵙겠습니다.
+          <strong>앤써드웨딩</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ Benefits (wine band header + cards) ═════════════ -->
+  <section class="bx-benefits" id="benefits">
+    <div class="bx-band-head bx-band-head--wine">
+      <span class="bx-script bx-script--light">Visit Benefit</span>
+      <h2 class="bx-band-title">꼭! 방문 혜택</h2>
+      <p class="bx-band-sub">단 한 커플만을 위한 1시간 카페형 상담 — 방문만 해도 이 모든 걸 드립니다.</p>
+    </div>
+    <div class="bx-wrap">
+      <div class="bx-benefit-grid" id="bx-benefit-grid"></div>
+    </div>
+  </section>
+
+  <!-- ═════════════ Why us (wine band) ═════════════ -->
+  <section class="bx-why">
+    <div class="bx-why-bg"><img class="bx-why-img" alt=""><span class="bx-why-veil"></span></div>
+    <div class="bx-why-inner">
+      <span class="bx-script bx-script--light">Why And Third</span>
+      <h2 class="bx-why-title">왜 앤써드웨딩일까요?</h2>
+      <p class="bx-why-sub">
+        창원·경남 최상위 스튜디오·웨딩홀·드레스·예물·한복·신혼여행 브랜드를
+        한 자리에 모았습니다. 발품 팔 필요 없이, 단 1시간이면 충분합니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═════════════ Partners (Wedding Studio) ═════════════ -->
+  <section class="bx-partners" id="partners">
+    <div class="bx-sec-head">
+      <span class="bx-ribbon">WEDDING PARTNERS</span>
+      <span class="bx-script">Wedding Studio</span>
+      <h2 class="bx-sec-title">함께하는 창원·경남 브랜드</h2>
+      <p class="bx-sec-sub">카테고리별 엄선된 제휴 브랜드를 한 자리에서 소개합니다.</p>
+    </div>
+    <div class="bx-wrap">
+      <div class="bx-tabs" id="bx-tabs" role="tablist"></div>
+      <div class="bx-panels" id="bx-panels"></div>
+    </div>
+  </section>
+
+  <!-- ═════════════ Gallery strip ═════════════ -->
+  <section class="bx-gallery" id="gallery">
+    <div class="bx-gallery-head">
+      <span class="bx-script bx-script--light">Gallery</span>
+      <h2 class="bx-band-title">실제 상담 · 촬영 현장</h2>
+    </div>
+    <div class="bx-gallery-track" id="bx-gallery-track"></div>
+  </section>
+
+  <!-- ═════════════ Location ═════════════ -->
+  <section class="bx-location" id="location">
+    <div class="bx-sec-head">
+      <span class="bx-ribbon">LOCATION</span>
+      <span class="bx-script">Direction</span>
+      <h2 class="bx-sec-title">오시는 길</h2>
+    </div>
+    <div class="bx-wrap">
+      <div class="bx-map" id="naver-map"></div>
+      <ul class="bx-location-meta">
+        <li><span>상호</span><strong>앤써드웨딩</strong></li>
+        <li><span>주소</span><strong>경상남도 창원시 창이대로719번길 4-8 1층</strong></li>
+        <li><span>예약·문의</span><strong>010-2407-4629</strong></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═════════════ Footer CTA (wine band) ═════════════ -->
+  <footer class="bx-foot">
+    <span class="bx-script bx-script--light">Free Invitation</span>
+    <h2 class="bx-foot-title">신랑·신부 무료 초대</h2>
+    <p class="bx-foot-sub">지금 방문 신청하고 카페형 프라이빗 웨딩 상담을 받아보세요.</p>
+    <a href="#apply" class="bx-btn bx-btn--white bx-btn--lg">무료 방문 신청하기</a>
+    <div class="bx-foot-info">
+      <p class="bx-foot-brand-line">앤써드웨딩</p>
+      <p>경상남도 창원시 창이대로719번길 4-8 1층 · 010-2407-4629</p>
+      <p class="bx-foot-copy">© 앤써드웨딩. All rights reserved.</p>
+    </div>
+  </footer>
+
+</div><!-- /.bx-shell -->
+
+<!-- ═════════════ Floating CTA ═════════════ -->
+<div class="floating-bar bx-float">
+  <a href="tel:01024074629" class="bx-float-tel">전화상담</a>
+  <a href="#apply" class="btn-float bx-float-cta">무료 방문 신청하기</a>
+</div>
+
+<!-- JS — shared data layer + B renderer -->
+<script src="js/config.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/media.js"></script>
+<script src="js/roulette.js"></script>
+<script src="js/b-app.js"></script>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#fbf2f3"/>
+    <rect x="20" y="20" width="60" height="60" rx="6" fill="#8a1c2b"/>
+    <path d="M50 36 l6 9 -6 7 -6 -7 z" fill="#f7d9e0"/>
+    <text x="50" y="70" text-anchor="middle" fill="#fff" font-family="serif" font-style="italic" font-size="12">초대전</text>
+  </svg>
+</template>
+
+</body>
+</html>

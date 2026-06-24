@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin · 2026 창원 프리미엄 웨딩박람회</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&family=Noto+Serif+KR:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     Login screen
+══════════════════════════════════════════════ -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <div class="login-eyebrow">Wedding Expo · Admin</div>
+    <h1 class="login-title">Sign in <em>to manage</em></h1>
+    <p class="login-hint">데모 계정: <code>demo</code> / <code>demo</code></p>
+    <form id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="text" id="login-email" placeholder="admin@wedding-expo.kr" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" required>
+      </div>
+      <p id="login-error" class="form-error"></p>
+      <button type="submit" class="btn-primary">Sign In →</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     Admin shell
+══════════════════════════════════════════════ -->
+<div id="admin-shell" class="admin-shell" hidden>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-en">ATW</span>
+      <span class="sidebar-brand-kr">앤써드웨딩 어드민</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#applicants"  data-tab="applicants"  class="nav-item is-active">
+        <span class="nav-num">01</span><span>신청자 명단</span>
+      </a>
+      <a href="#sections"    data-tab="sections"    class="nav-item">
+        <span class="nav-num">02</span><span>섹션 On / Off</span>
+      </a>
+      <a href="#content"     data-tab="content"     class="nav-item">
+        <span class="nav-num">03</span><span>콘텐츠 관리</span>
+      </a>
+      <a href="#settings"    data-tab="settings"    class="nav-item">
+        <span class="nav-num">04</span><span>이벤트 & 타이머</span>
+      </a>
+      <a href="#media"       data-tab="media"       class="nav-item">
+        <span class="nav-num">05</span><span>사진 관리</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <span id="who" class="who"></span>
+      <button id="logout-btn" class="link-btn">Sign out</button>
+      <a href="index.html" target="_blank" class="link-btn">View site →</a>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <!-- ── Applicants tab ── -->
+    <section class="tab is-active" data-tab="applicants">
+      <header class="tab-head">
+        <div class="tab-eyebrow">01 · Applicants</div>
+        <h2>신청자 명단</h2>
+        <div class="tab-actions">
+          <input id="applicant-search" type="search" placeholder="이름 / 연락처 검색…">
+          <button id="export-csv" class="btn-ghost">Export CSV</button>
+          <button id="refresh-applicants" class="btn-ghost">↻ 새로고침</button>
+        </div>
+      </header>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-label">총 신청자</span>
+          <span class="stat-value" id="stat-total">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">이번 주 신청</span>
+          <span class="stat-value" id="stat-sat">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">이번 달 신청</span>
+          <span class="stat-value" id="stat-sun">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">경품 당첨</span>
+          <span class="stat-value" id="stat-prize">—</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="applicants-table">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th>성함</th>
+              <th>연락처</th>
+              <th>방문일</th>
+              <th>경품</th>
+              <th>신청일시</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="applicants-tbody"></tbody>
+        </table>
+        <p id="applicants-empty" class="empty">신청자가 없습니다.</p>
+      </div>
+    </section>
+
+    <!-- ── Sections on/off tab ── -->
+    <section class="tab" data-tab="sections">
+      <header class="tab-head">
+        <div class="tab-eyebrow">02 · Sections</div>
+        <h2>섹션 On / Off</h2>
+        <p class="tab-sub">랜딩 페이지에서 보여줄 섹션을 켜고 끌 수 있습니다. 변경 사항은 저장 즉시 반영됩니다.</p>
+      </header>
+
+      <div class="section-toggles" id="section-toggles"></div>
+
+      <div class="save-bar">
+        <button id="save-sections" class="btn-primary">저장</button>
+        <span id="sections-saved" class="save-flag"></span>
+      </div>
+    </section>
+
+    <!-- ── Content management tab ── -->
+    <section class="tab" data-tab="content">
+      <header class="tab-head">
+        <div class="tab-eyebrow">03 · Content</div>
+        <h2>섹션 콘텐츠 관리</h2>
+        <p class="tab-sub">각 섹션의 업체·상품 데이터를 직접 추가·수정·순서변경할 수 있습니다.</p>
+      </header>
+
+      <div class="content-tabs">
+        <button class="ct-tab is-active" data-ct="studios">스튜디오</button>
+        <button class="ct-tab" data-ct="halls">웨딩홀</button>
+        <button class="ct-tab" data-ct="dresses">드레스·예복</button>
+        <button class="ct-tab" data-ct="jewelry">예물</button>
+        <button class="ct-tab" data-ct="hanboks">한복</button>
+        <button class="ct-tab" data-ct="travel">신혼여행</button>
+        <button class="ct-tab" data-ct="appliances">가전·가구</button>
+      </div>
+
+      <div id="content-editor"></div>
+
+      <div class="save-bar">
+        <button id="save-content" class="btn-primary">저장</button>
+        <button id="reset-content" class="btn-ghost">기본값으로 복원</button>
+        <span id="content-saved" class="save-flag"></span>
+      </div>
+    </section>
+
+    <!-- ── Settings (timer + roulette) tab ── -->
+    <section class="tab" data-tab="settings">
+      <header class="tab-head">
+        <div class="tab-eyebrow">04 · Event &amp; Timer</div>
+        <h2>이벤트 &amp; 타이머 설정</h2>
+      </header>
+
+      <div class="settings-grid">
+
+        <!-- Countdown -->
+        <div class="settings-card">
+          <h3>카운트다운 타이머</h3>
+          <div class="form-group">
+            <label>목표 일시 (ISO 8601)</label>
+            <input type="datetime-local" id="timer-date">
+          </div>
+          <div class="form-group">
+            <label>상단 라벨</label>
+            <input type="text" id="timer-label" placeholder="박람회 마감 임박">
+          </div>
+          <div class="form-group">
+            <label>종료 후 메시지</label>
+            <input type="text" id="timer-expired" placeholder="박람회가 시작되었습니다">
+          </div>
+        </div>
+
+        <!-- Roulette -->
+        <div class="settings-card">
+          <div class="card-head">
+            <h3>룰렛 이벤트</h3>
+            <label class="switch">
+              <input type="checkbox" id="roulette-active">
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+              <span class="switch-label">활성화</span>
+            </label>
+          </div>
+          <p class="muted">경품 weight의 합은 100이어야 합니다.</p>
+          <div id="prize-rows" class="prize-rows"></div>
+          <button id="add-prize" class="btn-ghost">+ 경품 추가</button>
+          <p id="prize-warn" class="form-error" style="display:none"></p>
+        </div>
+
+      </div>
+
+      <div class="save-bar">
+        <button id="save-settings" class="btn-primary">저장</button>
+        <span id="settings-saved" class="save-flag"></span>
+      </div>
+    </section>
+
+    <!-- ── Photo / media manager tab ── -->
+    <section class="tab" data-tab="media">
+      <header class="tab-head">
+        <div class="tab-eyebrow">05 · Photos</div>
+        <h2>사진 관리</h2>
+        <p class="tab-sub">각 사진 칸에 이미지를 <strong>끌어다 놓거나</strong> 칸을 클릭해 선택하면 교체됩니다. 업로드 즉시 미리보기가 바뀝니다.</p>
+      </header>
+      <div id="media-status" class="media-status"></div>
+      <div id="media-manager"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/media.js"></script>
+<script src="js/admin.js"></script>
+
+</body>
+</html>
