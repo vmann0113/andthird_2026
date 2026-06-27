@@ -14,6 +14,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderBenefits();
   renderPartners();
   renderGallery();
+  initBenefitFX();
   await initRoulette();
   await initTimer();
   initForm();
@@ -96,18 +97,42 @@ async function loadContentOverrides() {
    Benefits (café-style private consult)
 ════════════════════════════════════════════════════════════ */
 const BX_BENEFITS = [
-  { ttl: ["스드메 ", "10만원 할인권"], desc: "창원·부산·경남 웨딩 스튜디오 정보와 함께 드리는 10만원 할인 혜택.", tag: "₩100,000 상당" },
+  { ttl: ["스드메 ", "인기 웨딩스튜디오"], desc: "부산·경남 인기 웨딩스튜디오 샘플과 가격 정보를 한 자리에서 보실 수 있습니다. 추가로 10만원 할인권도 증정해 드립니다.", tag: "₩100,000 상당" },
   { ttl: ["결혼 ", "체크리스트 무료"], desc: "무엇부터 준비할지 막막할 때 — 결혼 준비 체크리스트를 무료 증정합니다.", tag: "무료 증정" },
   { ttl: ["커피·다과 ", "세트 증정"], desc: "1시간 1커플 카페형 상담. 차 한 잔과 다과를 즐기며 편안하게 진행합니다.", tag: "카페형 상담" },
   { ttl: ["부모님 한복 ", "10만원 상품권"], desc: "양가 부모님 한복 대여에 사용 가능한 10만원 상품권을 드립니다.", tag: "₩100,000 상당" },
-  { ttl: ["창원 ", "본식스냅 정보"], desc: "결혼식 당일을 담아줄 창원 본식스냅 업체 정보를 안내해 드립니다.", tag: "정보 안내" },
-  { ttl: ["창원 ", "웨딩홀 정보"], desc: "예산과 일정에 맞는 창원 웨딩홀 정보를 한 자리에서 비교해 드립니다.", tag: "정보 안내" }
+  { ttl: ["창원 ", "본식스냅 정보"], desc: "본식스냅 업체 정보를 한 자리에서 보실 수 있습니다.", tag: "정보 안내" },
+  { ttl: ["창원 ", "웨딩홀 정보"], desc: "창원 웨딩홀의 가격·위치·장단점 정보를 한 자리에서 보실 수 있습니다.", tag: "정보 안내" }
 ];
+/* fun pointer-tilt + spotlight on benefit cards (fine pointers only) */
+function initBenefitFX() {
+  if (!window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const MAX = 7; // deg
+  document.querySelectorAll(".bx-benefit-card").forEach(card => {
+    card.addEventListener("pointermove", e => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width;
+      const py = (e.clientY - r.top) / r.height;
+      card.style.setProperty("--rx", ((px - 0.5) * MAX).toFixed(2) + "deg");
+      card.style.setProperty("--ry", (-(py - 0.5) * MAX).toFixed(2) + "deg");
+      card.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+      card.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+      card.style.setProperty("--lift", "-5px");
+    });
+    card.addEventListener("pointerleave", () => {
+      card.style.setProperty("--rx", "0deg");
+      card.style.setProperty("--ry", "0deg");
+      card.style.setProperty("--lift", "0px");
+    });
+  });
+}
+
 function renderBenefits() {
   const el = document.getElementById("bx-benefit-grid");
   if (!el) return;
   el.innerHTML = BX_BENEFITS.map((b, i) => `
-    <article class="bx-benefit-card reveal" style="--delay:${i * 0.06}s">
+    <article class="bx-benefit-card" style="--delay:${i * 0.06}s">
       <span class="bx-benefit-no">${String(i + 1).padStart(2, "0")}</span>
       <h3 class="bx-benefit-ttl">${escapeHtml(b.ttl[0])}<span class="hl">${escapeHtml(b.ttl[1])}</span></h3>
       <p class="bx-benefit-desc">${escapeHtml(b.desc)}</p>
