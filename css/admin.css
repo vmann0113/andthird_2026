@@ -1,33 +1,35 @@
+@font-face{font-family:'Gmarket Sans';font-weight:500;font-style:normal;font-display:swap;src:url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');}
+@font-face{font-family:'Gmarket Sans';font-weight:700;font-style:normal;font-display:swap;src:url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');}
 /* ═══════════════════════════════════════════════════════════════
    admin.css — Editorial Wedding Admin
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  --ink:        #0c0a08;
-  --ink-2:      #15120e;
-  --ink-3:      #1f1b15;
-  --ink-4:      #2a241c;
-  --cream:      #ebe1cd;
-  --cream-2:    #f5efe2;
-  --off-white:  #faf7f0;
+  --ink:        #f3edef;
+  --ink-2:      #ffffff;
+  --ink-3:      #faf4f5;
+  --ink-4:      #f0e6e8;
+  --cream:      #f6e7e9;
+  --cream-2:    #fbf2f3;
+  --off-white:  #faf4f5;
   --paper:      #ffffff;
-  --brass:      #b89968;
-  --brass-deep: #8a6f44;
-  --brass-pale: #d4bc8e;
-  --rule-dark:  rgba(184, 153, 104, 0.22);
-  --rule-light: rgba(26, 22, 18, 0.14);
-  --t-on-dark:        #ede4d3;
-  --t-on-dark-dim:    rgba(237, 228, 211, 0.55);
-  --t-on-dark-muted:  rgba(237, 228, 211, 0.35);
-  --t-on-light:       #1a1612;
-  --t-on-light-dim:   rgba(26, 22, 18, 0.62);
-  --t-on-light-muted: rgba(26, 22, 18, 0.38);
-  --danger:    #b85e52;
-  --success:   #5a8a5e;
-  --serif-en: 'Cormorant Garamond', serif;
-  --serif-kr: 'Noto Serif KR', serif;
+  --brass:      #8a1c2b;
+  --brass-deep: #6a1320;
+  --brass-pale: #d63a6a;
+  --rule-dark:  rgba(138, 28, 43, 0.16);
+  --rule-light: rgba(42, 32, 36, 0.12);
+  --t-on-dark:        #2a2024;
+  --t-on-dark-dim:    rgba(42, 32, 36, 0.62);
+  --t-on-dark-muted:  rgba(42, 32, 36, 0.40);
+  --t-on-light:       #2a2024;
+  --t-on-light-dim:   rgba(42, 32, 36, 0.62);
+  --t-on-light-muted: rgba(42, 32, 36, 0.40);
+  --danger:    #c0392b;
+  --success:   #1f8a5b;
+  --serif-en: 'Gmarket Sans', 'Pretendard', sans-serif;
+  --serif-kr: 'Gmarket Sans', 'Pretendard', sans-serif;
   --sans:     'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-  --mono:     'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --mono:     'Pretendard', ui-monospace, Menlo, monospace;
 
   --fs-mono-xs:   12px;
   --fs-mono:      13px;
@@ -63,7 +65,7 @@ ul { list-style: none; }
   align-items: center;
   justify-content: center;
   background:
-    repeating-linear-gradient(135deg, rgba(184,153,104,0.04) 0px, rgba(184,153,104,0.04) 1px, transparent 1px, transparent 14px),
+    repeating-linear-gradient(135deg, rgba(138,28,43,0.04) 0px, rgba(138,28,43,0.04) 1px, transparent 1px, transparent 14px),
     var(--ink);
   padding: 20px;
 }
@@ -100,7 +102,7 @@ ul { list-style: none; }
 }
 .login-hint code {
   color: var(--brass);
-  background: rgba(184,153,104,0.1);
+  background: rgba(138,28,43,0.1);
   padding: 1px 6px;
 }
 
@@ -165,7 +167,7 @@ ul { list-style: none; }
 .nav-item.is-active {
   color: var(--brass);
   border-left-color: var(--brass);
-  background: rgba(184,153,104,0.04);
+  background: rgba(138,28,43,0.04);
 }
 .nav-num {
   font-family: var(--mono);
@@ -404,7 +406,7 @@ ul { list-style: none; }
   transition: transform 0.2s, background 0.2s;
 }
 .switch input:checked + .switch-track {
-  background: rgba(184,153,104,0.2);
+  background: rgba(138,28,43,0.2);
   border-color: var(--brass);
 }
 .switch input:checked + .switch-track .switch-thumb {
@@ -481,7 +483,7 @@ ul { list-style: none; }
   color: var(--t-on-dark);
 }
 .data-table tbody tr:last-child td { border-bottom: 0; }
-.data-table tbody tr:hover { background: rgba(184,153,104,0.04); }
+.data-table tbody tr:hover { background: rgba(138,28,43,0.04); }
 .data-table .cell-mono {
   font-family: var(--mono);
   font-size: var(--fs-mono);
@@ -847,3 +849,7 @@ ul { list-style: none; }
   color: var(--t-on-light-muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+
+/* B안 톤 — display 헤딩 synthetic italic 방지 */
+.login-title, .tab-head h2, .stat-value, .settings-card h3, .sidebar-brand-en, .st-roman { font-style: normal !important; }
+.btn-primary { font-weight: 700; }
